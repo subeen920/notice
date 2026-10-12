@@ -1,0 +1,1288 @@
+```html
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1-3반 수행평가 안내</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Noto Sans KR', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar for mobile responsiveness */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .calendar-cell {
+            min-height: 90px;
+        }
+        @media (max-width: 640px) {
+            .calendar-cell {
+                min-height: 75px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col antialiased selection:bg-blue-100 selection:text-blue-700">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-blue-500/20">
+                    1-3
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">1-3반 수행평가 안내</h1>
+                        <span class="px-2 py-0.5 text-xs font-semibold bg-blue-50 text-blue-600 rounded-full border border-blue-100">2학기</span>
+                    </div>
+                    <p class="text-xs text-slate-500 hidden sm:block">일정과 채점기준표를 확인하고 미리 차근차근 준비해요!</p>
+                </div>
+            </div>
+
+            <button onclick="openModal('uploadModal')" class="inline-flex items-center justify-center px-3.5 py-2 text-xs sm:text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-lg shadow-sm transition-all duration-150 gap-1.5 cursor-pointer">
+                <i class="fa-solid fa-pen-to-square"></i>
+                <span>일정 등록</span>
+            </button>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="max-w-5xl mx-auto px-4 sm:px-6 flex space-x-1 border-t border-slate-100 overflow-x-auto scrollbar-none">
+            <button onclick="switchTab('calendarTab')" id="tab-calendarTab" class="tab-btn px-4 py-3 text-xs sm:text-sm font-semibold border-b-2 border-blue-600 text-blue-600 flex items-center gap-2 whitespace-nowrap transition-colors">
+                <i class="fa-regular fa-calendar-days text-base"></i>
+                <span>월별 달력보기</span>
+            </button>
+            <button onclick="switchTab('detailTab')" id="tab-detailTab" class="tab-btn px-4 py-3 text-xs sm:text-sm font-medium text-slate-500 hover:text-slate-700 border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap transition-colors">
+                <i class="fa-solid fa-list-check text-base"></i>
+                <span>상세 및 채점기준표</span>
+            </button>
+            <button onclick="switchTab('summaryTab')" id="tab-summaryTab" class="tab-btn px-4 py-3 text-xs sm:text-sm font-medium text-slate-500 hover:text-slate-700 border-b-2 border-transparent flex items-center gap-2 whitespace-nowrap transition-colors">
+                <i class="fa-solid fa-hourglass-half text-base"></i>
+                <span>D-Day 모아보기</span>
+                <span id="upcomingBadge" class="ml-1 px-1.5 py-0.2 text-[10px] font-bold bg-amber-100 text-amber-800 rounded-full">0</span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 py-6 flex-1 w-full">
+
+        <!-- TAB 1: Calendar View -->
+        <section id="calendarTab" class="tab-content space-y-4">
+            <!-- Calendar Navigation & Legend -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center space-x-3">
+                    <button onclick="changeMonth(-1)" class="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 transition-colors">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <h2 id="currentMonthLabel" class="text-lg font-bold text-slate-800 min-w-[120px] text-center">
+                        2026년 10월
+                    </h2>
+                    <button onclick="changeMonth(1)" class="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 transition-colors">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                    <button onclick="goToday()" class="px-2.5 py-1 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-md transition-colors">
+                        오늘
+                    </button>
+                </div>
+
+                <!-- Subject Legend -->
+                <div class="flex flex-wrap items-center gap-2 text-xs">
+                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 font-medium border border-rose-100"><span class="w-2 h-2 rounded-full bg-rose-500"></span>국어</span>
+                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 font-medium border border-blue-100"><span class="w-2 h-2 rounded-full bg-blue-500"></span>수학</span>
+                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-medium border border-emerald-100"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>영어</span>
+                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 font-medium border border-purple-100"><span class="w-2 h-2 rounded-full bg-purple-500"></span>과학</span>
+                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 font-medium border border-amber-100"><span class="w-2 h-2 rounded-full bg-amber-500"></span>사회</span>
+                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-medium border border-slate-200"><span class="w-2 h-2 rounded-full bg-slate-500"></span>기타</span>
+                </div>
+            </div>
+
+            <!-- Calendar Grid Card -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+                <!-- Days Header -->
+                <div class="grid grid-cols-7 bg-slate-50 border-b border-slate-200 text-center text-xs font-semibold text-slate-600 py-2.5">
+                    <div class="text-rose-500">일</div>
+                    <div>월</div>
+                    <div>화</div>
+                    <div>수</div>
+                    <div>목</div>
+                    <div>금</div>
+                    <div class="text-blue-500">토</div>
+                </div>
+                <!-- Grid Cells -->
+                <div id="calendarGrid" class="grid grid-cols-7 bg-slate-200 gap-px">
+                    <!-- Dynamic rendering -->
+                </div>
+            </div>
+            <p class="text-xs text-slate-400 text-right"><i class="fa-solid fa-circle-info mr-1"></i>날짜 내 평가 항목을 클릭하면 세부 채점기준표로 바로 이동합니다.</p>
+        </section>
+
+        <!-- TAB 2: Detail View & Rubrics -->
+        <section id="detailTab" class="tab-content space-y-4 hidden">
+            <!-- Search & Filters -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div class="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+                    <button onclick="filterSubject('ALL')" class="subject-filter-btn active-filter px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-900 text-white transition-all whitespace-nowrap">
+                        전체과목
+                    </button>
+                    <button onclick="filterSubject('국어')" class="subject-filter-btn px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all whitespace-nowrap">
+                        국어
+                    </button>
+                    <button onclick="filterSubject('수학')" class="subject-filter-btn px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all whitespace-nowrap">
+                        수학
+                    </button>
+                    <button onclick="filterSubject('영어')" class="subject-filter-btn px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all whitespace-nowrap">
+                        영어
+                    </button>
+                    <button onclick="filterSubject('과학')" class="subject-filter-btn px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all whitespace-nowrap">
+                        과학
+                    </button>
+                    <button onclick="filterSubject('사회')" class="subject-filter-btn px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all whitespace-nowrap">
+                        사회
+                    </button>
+                </div>
+
+                <div class="relative w-full sm:w-64">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                    <input type="text" id="searchInput" oninput="renderDetails()" placeholder="평가명 또는 내용 검색..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all">
+                </div>
+            </div>
+
+            <!-- List Container -->
+            <div id="detailListContainer" class="space-y-4">
+                <!-- Dynamic cards -->
+            </div>
+        </section>
+
+        <!-- TAB 3: Summary / D-Day View -->
+        <section id="summaryTab" class="tab-content space-y-4 hidden">
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-5 rounded-2xl shadow-md">
+                <h3 class="text-base font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-bullhorn"></i>
+                    다가오는 수행평가 일정
+                </h3>
+                <p class="text-xs text-blue-100 mt-1">마감 전 중요한 채점 기준 및 준비물을 체크하여 제출 기한을 놓치지 마세요!</p>
+            </div>
+
+            <div id="summaryCardContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Dynamic Summary Cards -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL: Upload / Edit Performance Evaluation -->
+    <div id="uploadModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-xl border border-slate-100 flex flex-col">
+            
+            <!-- Modal Header -->
+            <div class="p-4 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-sm" id="modalTitle">수행평가 일정 등록</h3>
+                        <p class="text-[11px] text-slate-400">수행평가 정보와 세부 기준을 입력해 주세요.</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('uploadModal')" class="text-slate-400 hover:text-slate-600 w-7 h-7 rounded-lg hover:bg-slate-100 flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Form Body -->
+            <form id="evaluationForm" onsubmit="handleFormSubmit(event)" class="p-5 space-y-4">
+                <input type="hidden" id="editId" value="">
+
+                <!-- Subject Selection -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">담당 과목 <span class="text-rose-500">*</span></label>
+                    <select id="formSubject" required class="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <option value="">과목 선택</option>
+                        <option value="국어">국어</option>
+                        <option value="수학">수학</option>
+                        <option value="영어">영어</option>
+                        <option value="사회">사회</option>
+                        <option value="과학">과학</option>
+                        <option value="기타">기타/공통</option>
+                    </select>
+                </div>
+
+                <!-- Date & Period -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">평가 날짜 <span class="text-rose-500">*</span></label>
+                        <input type="date" id="formDate" required class="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">평가 교시 <span class="text-rose-500">*</span></label>
+                        <input type="text" id="formPeriod" required placeholder="예: 2교시 또는 3~4교시 블록" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- Evaluation Title -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">수행평가명 <span class="text-rose-500">*</span></label>
+                    <input type="text" id="formTitle" required placeholder="예: 현대 소설 비평문 쓰기" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                </div>
+
+                <!-- Description & Preparation -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">평가 개요 및 준비물</label>
+                    <textarea id="formDescription" rows="2" placeholder="준비물, 수업 전 사전 지시사항 등 주의할 사항을 작성하세요." class="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none"></textarea>
+                </div>
+
+                <!-- Rubric Section -->
+                <div class="border-t border-slate-100 pt-3">
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="text-xs font-semibold text-slate-800 flex items-center gap-1">
+                            <i class="fa-solid fa-table-list text-blue-500"></i>
+                            세부 채점 기준표 (성취도별 기준)
+                        </label>
+                        <button type="button" onclick="addRubricRow()" class="text-xs text-blue-600 hover:text-blue-700 font-medium">
+                            + 항목 추가
+                        </button>
+                    </div>
+
+                    <div id="rubricsContainer" class="space-y-3">
+                        <!-- Dynamic Rubric Row Templates -->
+                    </div>
+                </div>
+
+                <!-- Modal Actions -->
+                <div class="pt-3 border-t border-slate-100 flex justify-end space-x-2">
+                    <button type="button" onclick="closeModal('uploadModal')" class="px-4 py-2 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
+                        취소
+                    </button>
+                    <button type="submit" class="px-4 py-2 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors">
+                        저장하기
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Custom Toast Notification Box -->
+    <div id="toastBox" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div id="toastContent" class="bg-slate-900 text-white text-xs px-4 py-3 rounded-xl shadow-xl flex items-center space-x-2">
+            <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400"></i>
+            <span id="toastMsg">처리되었습니다.</span>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 mt-auto text-center text-xs text-slate-400">
+        <div class="max-w-5xl mx-auto px-4">
+            <p>1학년 3반 학급 전용 수행평가 알리미 시스템 &bull; 교과부장 관리용</p>
+        </div>
+    </footer>
+
+    <script>
+        // Subject Passcodes Configuration
+        const PASSCODES = {
+            '국어': '01',
+            '수학': '02',
+            '영어': '03',
+            '사회': '04',
+            '과학': '05',
+            '기타': '00'
+        };
+
+        // Color Mapping by Subject
+        const SUBJECT_COLORS = {
+            '국어': { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-200', tagBg: 'bg-rose-500', badge: 'bg-rose-100 text-rose-800' },
+            '수학': { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200', tagBg: 'bg-blue-500', badge: 'bg-blue-100 text-blue-800' },
+            '영어': { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', tagBg: 'bg-emerald-500', badge: 'bg-emerald-100 text-emerald-800' },
+            '과학': { bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200', tagBg: 'bg-purple-500', badge: 'bg-purple-100 text-purple-800' },
+            '사회': { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200', tagBg: 'bg-amber-500', badge: 'bg-amber-100 text-amber-800' },
+            '기타': { bg: 'bg-slate-100', text: 'text-slate-700', border: 'border-slate-200', tagBg: 'bg-slate-500', badge: 'bg-slate-200 text-slate-800' }
+        };
+
+        // Initial Sample Data
+        const DEFAULT_EVALUATIONS = [
+            {
+                id: 'eval-1',
+                subject: '국어',
+                title: '현대 소설 핵심 인물 심리 비평문',
+                date: '2026-10-14',
+                period: '2교시',
+                description: '수업 시간에 다룬 단편 소설 속 주인공의 갈등과 해결 과정을 500자 내외로 논리적으로 분석 및 작성합니다. (원고지 작성)',
+                rubrics: [
+                    { category: '주제 명확성 및 이해도', score: '10점', high: '인물의 인물 관계 및 갈등의 원인을 정확히 제시함', mid: '주제 및 갈등 분석이 다소 부족하나 요지를 파악함', low: '소설 내용 파악이 미흡하거나 주제가 불분명함' },
+                    { category: '논리적 문장 구성 및 어휘', score: '10점', high: '문맥이 자연스럽고 맞춤법 및 어법이 우수함', mid: '일부 오탈자 및 부자연스러운 문장이 존재함', low: '어법 오류가 많아 의미 전달이 어려움' }
+                ]
+            },
+            {
+                id: 'eval-2',
+                subject: '수학',
+                title: '이차함수의 실생활 활용 모델링 탐구 발표',
+                date: '2026-10-21',
+                period: '3~4교시 (블록타임)',
+                description: '실생활에서 이차함수의 그래프(포물선)가 적용된 예시(포물선 안테나, 교량 구조 등)를 찾아 계산식과 함께 PPT로 발표합니다.',
+                rubrics: [
+                    { category: '수학적 모델링 수식 정확성', score: '15점', high: '이차함수 표준형/일반형 변환 및 좌표 설정이 완벽함', mid: '수식 계산에 일부 유의미하지 않은 오류가 있음', low: '이차함수 관계식 수립을 진행하지 못함' },
+                    { category: '발표 및 전달력', score: '5점', high: '시간을 준수하고 질의응답에 명확히 답변함', mid: '발표 시간이 모자라거나 시선 처리가 다소 불안함', low: '발표 내용 숙지가 부족함' }
+                ]
+            },
+            {
+                id: 'eval-3',
+                subject: '영어',
+                title: 'Global Issue Essay & Small Group Presentation',
+                date: '2026-10-27',
+                period: '5교시',
+                description: '환경 문제 또는 기후 변화에 대한 자신만의 솔루션을 영문 에세이(150단어)로 작성 후 모둠원에게 발표합니다.',
+                rubrics: [
+                    { category: 'Vocabulary & Grammar', score: '10점', high: '수업에 배운 핵심 어휘 5개 이상을 적절히 사용', mid: '기본 어휘로 작성되었으나 문법 오류 2회 이하', low: '기본 어휘 부족 및 문장 성립 불가' },
+                    { category: 'Fluency & Content', score: '10점', high: '자연스러운 발음과 논리적인 해결책 제시', mid: '솔루션 제시가 다소 상투적임', low: '발표를 지속하기 어려움' }
+                ]
+            },
+            {
+                id: 'eval-4',
+                subject: '과학',
+                title: '물질의 구성과 화학 반응 실험 보고서',
+                date: '2026-11-04',
+                period: '1~2교시',
+                description: '실험실에서 앙금 생성 반응 실험을 직접 수행하고 결과를 정리한 실험 보고서를 당일 제출합니다.',
+                rubrics: [
+                    { category: '실험 안전 및 태도', score: '5점', high: '보호장구 착용 및 실험 규칙을 철저히 준수', mid: '실험 도중 주의 조치를 1회 받음', low: '안전 수칙 위반 및 주변 정리 미흡' },
+                    { category: '결과 분석 및 결론', score: '15점', high: '앙금의 종류와 화학 반응식을 올바르게 기술', mid: '화학 반응식 표기 중 일부 오기 있음', low: '결과 해석이 불분명함' }
+                ]
+            },
+            {
+                id: 'eval-5',
+                subject: '사회',
+                title: '현대 사회 문제 해결을 위한 모의 입법안 작성',
+                date: '2026-11-12',
+                period: '4교시',
+                description: '청소년 관련 사회적 이슈(SNS 중독, 학교 폭력 등)에 대처하는 법률 제정안 초안을 작성합니다.',
+                rubrics: [
+                    { category: '문제의 심각성 및 필요성', score: '10점', high: '통계 자료 등 구체적 근거를 바탕으로 필요성 입증', mid: '근거 제시가 다소 빈약하나 필요성은 인지함', low: '문제의 본질을 파악하지 못함' },
+                    { category: '법안의 실현 가능성', score: '10점', high: '구체적인 이행 방안 및 효과성 제시', mid: '현실성이 조금 부족한 아이디어 포함', low: '내용이 추상적임' }
+                ]
+            }
+        ];
+
+        // Global State Variables
+        let evaluations = [];
+        let currentYear = 2026;
+        let currentMonth = 9; // 0-indexed (9 = October)
+        let activeSubjectFilter = 'ALL';
+
+        // Load Initial State
+        window.onload = function() {
+            const saved = localStorage.getItem('class1_3_evaluations');
+            if (saved) {
+                try {
+                    evaluations = JSON.parse(saved);
+                } catch(e) {
+                    evaluations = DEFAULT_EVALUATIONS;
+                }
+            } else {
+                evaluations = DEFAULT_EVALUATIONS;
+                saveEvaluations();
+            }
+
+            // Default set to October 2026
+            currentYear = 2026;
+            currentMonth = 9; // Oct
+
+            renderCalendar();
+            renderDetails();
+            renderSummary();
+            updateUpcomingBadge();
+        };
+
+        function saveEvaluations() {
+            localStorage.setItem('class1_3_evaluations', JSON.stringify(evaluations));
+            updateUpcomingBadge();
+        }
+
+        // Navigation Tab Switch
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-blue-600', 'text-blue-600', 'font-semibold');
+                btn.classList.add('border-transparent', 'text-slate-500', 'font-medium');
+            });
+
+            const activeBtn = document.getElementById('tab-' + tabId);
+            activeBtn.classList.remove('border-transparent', 'text-slate-500', 'font-medium');
+            activeBtn.classList.add('border-blue-600', 'text-blue-600', 'font-semibold');
+
+            if (tabId === 'calendarTab') renderCalendar();
+            if (tabId === 'detailTab') renderDetails();
+            if (tabId === 'summaryTab') renderSummary();
+        }
+
+        function changeMonth(delta) {
+            currentMonth += delta;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            } else if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            renderCalendar();
+        }
+
+        function goToday() {
+            const now = new Date();
+            currentYear = now.getFullYear();
+            currentMonth = now.getMonth();
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const monthLabel = document.getElementById('currentMonthLabel');
+            monthLabel.textContent = `${currentYear}년 ${currentMonth + 1}월`;
+
+            const grid = document.getElementById('calendarGrid');
+            grid.innerHTML = '';
+
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+            // Prev Month Filler
+            for (let i = 0; i < firstDay; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.className = 'calendar-cell bg-slate-50/70 p-1 sm:p-2 text-slate-300 text-xs font-medium';
+                grid.appendChild(emptyCell);
+            }
+
+            const today = new Date();
+            const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+            // Actual Month Days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const cell = document.createElement('div');
+                
+                const isToday = (dateStr === todayStr);
+                cell.className = `calendar-cell p-1 sm:p-1.5 bg-white flex flex-col justify-between hover:bg-slate-50 transition-colors relative ${isToday ? 'bg-blue-50/40 font-bold' : ''}`;
+
+                // Day header
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'flex items-center justify-between text-xs mb-1';
+
+                const dayNum = document.createElement('span');
+                const dayOfWeek = new Date(currentYear, currentMonth, day).getDay();
+                
+                if (dayOfWeek === 0) dayNum.className = 'text-rose-500 font-semibold';
+                else if (dayOfWeek === 6) dayNum.className = 'text-blue-500 font-semibold';
+                else dayNum.className = 'text-slate-700';
+                
+                dayNum.textContent = day;
+
+                if (isToday) {
+                    const todayBadge = document.createElement('span');
+                    todayBadge.className = 'text-[9px] bg-blue-600 text-white px-1 rounded font-normal';
+                    todayBadge.textContent = '오늘';
+                    dayHeader.appendChild(todayBadge);
+                }
+
+                dayHeader.appendChild(dayNum);
+                cell.appendChild(dayHeader);
+
+                // Container for items inside the date
+                const itemContainer = document.createElement('div');
+                itemContainer.className = 'space-y-1 overflow-y-auto max-h-[60px] scrollbar-none';
+
+                const dayEvals = evaluations.filter(e => e.date === dateStr);
+
+                dayEvals.forEach(ev => {
+                    const style = SUBJECT_COLORS[ev.subject] || SUBJECT_COLORS['기타'];
+                    const tag = document.createElement('div');
+                    tag.className = `text-[10px] sm:text-xs p-1 rounded-md ${style.bg} ${style.text} border ${style.border} cursor-pointer hover:shadow-sm font-medium transition-all flex items-center justify-between group`;
+                    tag.onclick = (e) => {
+                        e.stopPropagation();
+                        jumpToDetail(ev.id);
+                    };
+
+                    tag.innerHTML = `
+                        <span class="truncate"><strong class="font-bold mr-0.5">[${ev.subject}]</strong> ${ev.title}</span>
+                        <i class="fa-solid fa-chevron-right text-[8px] opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                    `;
+                    itemContainer.appendChild(tag);
+                });
+
+                cell.appendChild(itemContainer);
+                grid.appendChild(cell);
+            }
+        }
+
+        function jumpToDetail(evalId) {
+            switchTab('detailTab');
+            setTimeout(() => {
+                const targetCard = document.getElementById('card-' + evalId);
+                if (targetCard) {
+                    targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    targetCard.classList.add('ring-2', 'ring-blue-500', 'ring-offset-2');
+                    setTimeout(() => targetCard.classList.remove('ring-2', 'ring-blue-500', 'ring-offset-2'), 2500);
+                }
+            }, 100);
+        }
+
+        function filterSubject(subject) {
+            activeSubjectFilter = subject;
+            document.querySelectorAll('.subject-filter-btn').forEach(btn => {
+                btn.classList.remove('bg-slate-900', 'text-white');
+                btn.classList.add('bg-slate-100', 'text-slate-600');
+            });
+            event.target.classList.remove('bg-slate-100', 'text-slate-600');
+            event.target.classList.add('bg-slate-900', 'text-white');
+            renderDetails();
+        }
+
+        function renderDetails() {
+            const container = document.getElementById('detailListContainer');
+            const searchKeyword = (document.getElementById('searchInput').value || '').toLowerCase();
+
+            container.innerHTML = '';
+
+            let filtered = evaluations.filter(ev => {
+                const matchSubject = (activeSubjectFilter === 'ALL' || ev.subject === activeSubjectFilter);
+                const matchSearch = ev.title.toLowerCase().includes(searchKeyword) ||
+                                    ev.description.toLowerCase().includes(searchKeyword) ||
+                                    ev.subject.toLowerCase().includes(searchKeyword);
+                return matchSubject && matchSearch;
+            });
+
+            // Sort by date ascending
+            filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white p-8 text-center rounded-2xl border border-slate-200/80 text-slate-400">
+                        <i class="fa-solid fa-folder-open text-3xl mb-2 text-slate-300"></i>
+                        <p class="text-xs">해당 조건에 부합하는 수행평가 일정이 없습니다.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach(ev => {
+                const style = SUBJECT_COLORS[ev.subject] || SUBJECT_COLORS['기타'];
+                const card = document.createElement('div');
+                card.id = `card-${ev.id}`;
+                card.className = `bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-sm transition-all duration-200 hover:shadow-md`;
+
+                // Calculate D-Day
+                const dDayText = calculateDDay(ev.date);
+
+                let rubricTableHTML = '';
+                if (ev.rubrics && ev.rubrics.length > 0) {
+                    rubricTableHTML = `
+                        <div class="mt-4 border border-slate-200 rounded-xl overflow-hidden text-xs">
+                            <div class="bg-slate-50 px-3 py-2 font-semibold text-slate-700 border-b border-slate-200 flex justify-between items-center">
+                                <span><i class="fa-solid fa-list-check text-blue-500 mr-1"></i> 세부 평가 및 채점 기준표</span>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left divide-y divide-slate-200">
+                                    <thead class="bg-slate-100/70 text-slate-600 font-semibold text-[11px]">
+                                        <tr>
+                                            <th class="p-2.5 min-w-[120px]">평가 요소</th>
+                                            <th class="p-2.5 w-16 text-center">배점</th>
+                                            <th class="p-2.5 min-w-[140px] text-emerald-700 bg-emerald-50/50">성취기준 (상)</th>
+                                            <th class="p-2.5 min-w-[140px] text-blue-700 bg-blue-50/50">성취기준 (중)</th>
+                                            <th class="p-2.5 min-w-[140px] text-amber-700 bg-amber-50/50">성취기준 (하)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100 bg-white">
+                                        ${ev.rubrics.map(r => `
+                                            <tr class="hover:bg-slate-50/50">
+                                                <td class="p-2.5 font-medium text-slate-800">${r.category}</td>
+                                                <td class="p-2.5 text-center font-bold text-blue-600">${r.score}</td>
+                                                <td class="p-2.5 text-slate-600 bg-emerald-50/20">${r.high}</td>
+                                                <td class="p-2.5 text-slate-600 bg-blue-50/20">${r.mid}</td>
+                                                <td class="p-2.5 text-slate-600 bg-amber-50/20">${r.low}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                card.innerHTML = `
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
+                        <div class="flex items-center space-x-2">
+                            <span class="px-2.5 py-1 rounded-lg text-xs font-bold ${style.badge}">
+                                ${ev.subject}
+                            </span>
+                            <h3 class="text-base font-bold text-slate-900">${ev.title}</h3>
+                        </div>
+                        <div class="flex items-center gap-2">
+                        <span class="text-xs px-2.5 py-1 rounded-full font-semibold ${dDayText.badgeClass}">
+                            ${dDayText.text}
+                        </span>
+                        <button onclick="editEvaluation('${ev.id}')" class="text-slate-400 hover:text-blue-600 text-xs p-1 rounded hover:bg-slate-100 transition-colors" title="수정">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <button onclick="deleteEvaluation('${ev.id}')" class="text-slate-400 hover:text-rose-600 text-xs p-1 rounded hover:bg-slate-100 transition-colors" title="삭제">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+    <script>
+        // Color Mapping by Subject
+        const SUBJECT_COLORS = {
+            '국어': { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-200', tagBg: 'bg-rose-500', badge: 'bg-rose-100 text-rose-800' },
+            '수학': { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200', tagBg: 'bg-blue-500', badge: 'bg-blue-100 text-blue-800' },
+            '영어': { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', tagBg: 'bg-emerald-500', badge: 'bg-emerald-100 text-emerald-800' },
+            '과학': { bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200', tagBg: 'bg-purple-500', badge: 'bg-purple-100 text-purple-800' },
+            '사회': { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200', tagBg: 'bg-amber-500', badge: 'bg-amber-100 text-amber-800' },
+            '기타': { bg: 'bg-slate-100', text: 'text-slate-700', border: 'border-slate-200', tagBg: 'bg-slate-500', badge: 'bg-slate-200 text-slate-800' }
+        };
+
+        // Initial Sample Data
+        const DEFAULT_EVALUATIONS = [
+            {
+                id: 'eval-1',
+                subject: '국어',
+                title: '현대 소설 핵심 인물 심리 비평문',
+                date: '2026-10-14',
+                period: '2교시',
+                description: '수업 시간에 다룬 단편 소설 속 주인공의 갈등과 해결 과정을 500자 내외로 논리적으로 분석 및 작성합니다. (원고지 작성)',
+                rubrics: [
+                    { category: '주제 명확성 및 이해도', score: '10점', high: '인물의 인물 관계 및 갈등의 원인을 정확히 제시함', mid: '주제 및 갈등 분석이 다소 부족하나 요지를 파악함', low: '소설 내용 파악이 미흡하거나 주제가 불분명함' },
+                    { category: '논리적 문장 구성 및 어휘', score: '10점', high: '문맥이 자연스럽고 맞춤법 및 어법이 우수함', mid: '일부 오탈자 및 부자연스러운 문장이 존재함', low: '어법 오류가 많아 의미 전달이 어려움' }
+                ]
+            },
+            {
+                id: 'eval-2',
+                subject: '수학',
+                title: '이차함수의 실생활 활용 모델링 탐구 발표',
+                date: '2026-10-21',
+                period: '3~4교시 (블록타임)',
+                description: '실생활에서 이차함수의 그래프(포물선)가 적용된 예시(포물선 안테나, 교량 구조 등)를 찾아 계산식과 함께 PPT로 발표합니다.',
+                rubrics: [
+                    { category: '수학적 모델링 수식 정확성', score: '15점', high: '이차함수 표준형/일반형 변환 및 좌표 설정이 완벽함', mid: '수식 계산에 일부 유의미하지 않은 오류가 있음', low: '이차함수 관계식 수립을 진행하지 못함' },
+                    { category: '발표 및 전달력', score: '5점', high: '시간을 준수하고 질의응답에 명확히 답변함', mid: '발표 시간이 모자라거나 시선 처리가 다소 불안함', low: '발표 내용 숙지가 부족함' }
+                ]
+            },
+            {
+                id: 'eval-3',
+                subject: '영어',
+                title: 'Global Issue Essay & Small Group Presentation',
+                date: '2026-10-27',
+                period: '5교시',
+                description: '환경 문제 또는 기후 변화에 대한 자신만의 솔루션을 영문 에세이(150단어)로 작성 후 모둠원에게 발표합니다.',
+                rubrics: [
+                    { category: 'Vocabulary & Grammar', score: '10점', high: '수업에 배운 핵심 어휘 5개 이상을 적절히 사용', mid: '기본 어휘로 작성되었으나 문법 오류 2회 이하', low: '기본 어휘 부족 및 문장 성립 불가' },
+                    { category: 'Fluency & Content', score: '10점', high: '자연스러운 발음과 논리적인 해결책 제시', mid: '솔루션 제시가 다소 상투적임', low: '발표를 지속하기 어려움' }
+                ]
+            },
+            {
+                id: 'eval-4',
+                subject: '과학',
+                title: '물질의 구성과 화학 반응 실험 보고서',
+                date: '2026-11-04',
+                period: '1~2교시',
+                description: '실험실에서 앙금 생성 반응 실험을 직접 수행하고 결과를 정리한 실험 보고서를 당일 제출합니다.',
+                rubrics: [
+                    { category: '실험 안전 및 태도', score: '5점', high: '보호장구 착용 및 실험 규칙을 철저히 준수', mid: '실험 도중 주의 조치를 1회 받음', low: '안전 수칙 위반 및 주변 정리 미흡' },
+                    { category: '결과 분석 및 결론', score: '15점', high: '앙금의 종류와 화학 반응식을 올바르게 기술', mid: '화학 반응식 표기 중 일부 오기 있음', low: '결과 해석이 불분명함' }
+                ]
+            },
+            {
+                id: 'eval-5',
+                subject: '사회',
+                title: '현대 사회 문제 해결을 위한 모의 입법안 작성',
+                date: '2026-11-12',
+                period: '4교시',
+                description: '청소년 관련 사회적 이슈(SNS 중독, 학교 폭력 등)에 대처하는 법률 제정안 초안을 작성합니다.',
+                rubrics: [
+                    { category: '문제의 심각성 및 필요성', score: '10점', high: '통계 자료 등 구체적 근거를 바탕으로 필요성 입증', mid: '근거 제시가 다소 빈약하나 필요성은 인지함', low: '문제의 본질을 파악하지 못함' },
+                    { category: '법안의 실현 가능성', score: '10점', high: '구체적인 이행 방안 및 효과성 제시', mid: '현실성이 조금 부족한 아이디어 포함', low: '내용이 추상적임' }
+                ]
+            }
+        ];
+
+        // Global State Variables
+        let evaluations = [];
+        let currentYear = 2026;
+        let currentMonth = 9; // 0-indexed (9 = October)
+        let activeSubjectFilter = 'ALL';
+
+        // Load Initial State
+        window.onload = function() {
+            const saved = localStorage.getItem('class1_3_evaluations');
+            if (saved) {
+                try {
+                    evaluations = JSON.parse(saved);
+                } catch(e) {
+                    evaluations = DEFAULT_EVALUATIONS;
+                }
+            } else {
+                evaluations = DEFAULT_EVALUATIONS;
+                saveEvaluations();
+            }
+
+            currentYear = 2026;
+            currentMonth = 9; // Oct
+
+            renderCalendar();
+            renderDetails();
+            renderSummary();
+            updateUpcomingBadge();
+        };
+
+        function saveEvaluations() {
+            localStorage.setItem('class1_3_evaluations', JSON.stringify(evaluations));
+            updateUpcomingBadge();
+        }
+
+        // Navigation Tab Switch
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-blue-600', 'text-blue-600', 'font-semibold');
+                btn.classList.add('border-transparent', 'text-slate-500', 'font-medium');
+            });
+
+            const activeBtn = document.getElementById('tab-' + tabId);
+            activeBtn.classList.remove('border-transparent', 'text-slate-500', 'font-medium');
+            activeBtn.classList.add('border-blue-600', 'text-blue-600', 'font-semibold');
+
+            if (tabId === 'calendarTab') renderCalendar();
+            if (tabId === 'detailTab') renderDetails();
+            if (tabId === 'summaryTab') renderSummary();
+        }
+
+        function changeMonth(delta) {
+            currentMonth += delta;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            } else if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            renderCalendar();
+        }
+
+        function goToday() {
+            const now = new Date();
+            currentYear = now.getFullYear();
+            currentMonth = now.getMonth();
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const monthLabel = document.getElementById('currentMonthLabel');
+            monthLabel.textContent = `${currentYear}년 ${currentMonth + 1}월`;
+
+            const grid = document.getElementById('calendarGrid');
+            grid.innerHTML = '';
+
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+            for (let i = 0; i < firstDay; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.className = 'calendar-cell bg-slate-50/50 p-1 sm:p-2 text-slate-300 text-xs font-medium';
+                grid.appendChild(emptyCell);
+            }
+
+            const today = new Date();
+            const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const cell = document.createElement('div');
+                
+                const isToday = (dateStr === todayStr);
+                cell.className = `calendar-cell p-1 sm:p-1.5 border-t border-slate-100 flex flex-col justify-between hover:bg-slate-50 transition-colors relative ${isToday ? 'bg-blue-50/40 font-bold' : ''}`;
+
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'flex items-center justify-between text-xs mb-1';
+
+                const dayNum = document.createElement('span');
+                const dayOfWeek = new Date(currentYear, currentMonth, day).getDay();
+                
+                if (dayOfWeek === 0) dayNum.className = 'text-rose-500 font-semibold';
+                else if (dayOfWeek === 6) dayNum.className = 'text-blue-500 font-semibold';
+                else dayNum.className = 'text-slate-700';
+                
+                dayNum.textContent = day;
+
+                if (isToday) {
+                    const todayBadge = document.createElement('span');
+                    todayBadge.className = 'text-[9px] bg-blue-600 text-white px-1 rounded font-normal';
+                    todayBadge.textContent = '오늘';
+                    dayHeader.appendChild(todayBadge);
+                }
+
+                dayHeader.appendChild(dayNum);
+                cell.appendChild(dayHeader);
+
+                const itemContainer = document.createElement('div');
+                itemContainer.className = 'space-y-1 overflow-y-auto max-h-[60px] scrollbar-none';
+
+                const dayEvals = evaluations.filter(e => e.date === dateStr);
+
+                dayEvals.forEach(ev => {
+                    const style = SUBJECT_COLORS[ev.subject] || SUBJECT_COLORS['기타'];
+                    const tag = document.createElement('div');
+                    tag.className = `text-[10px] sm:text-xs p-1 rounded-md ${style.bg} ${style.text} border ${style.border} cursor-pointer hover:shadow-sm font-medium transition-all flex items-center justify-between group`;
+                    tag.onclick = (e) => {
+                        e.stopPropagation();
+                        jumpToDetail(ev.id);
+                    };
+
+                    tag.innerHTML = `
+                        <span class="truncate"><strong class="font-bold mr-0.5">[${ev.subject}]</strong> ${ev.title}</span>
+                        <i class="fa-solid fa-chevron-right text-[8px] opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                    `;
+                    itemContainer.appendChild(tag);
+                });
+
+                cell.appendChild(itemContainer);
+                grid.appendChild(cell);
+            }
+        }
+
+        function jumpToDetail(evalId) {
+            switchTab('detailTab');
+            setTimeout(() => {
+                const targetCard = document.getElementById('card-' + evalId);
+                if (targetCard) {
+                    targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    targetCard.classList.add('ring-2', 'ring-blue-500', 'ring-offset-2');
+                    setTimeout(() => targetCard.classList.remove('ring-2', 'ring-blue-500', 'ring-offset-2'), 2500);
+                }
+            }, 100);
+        }
+
+        function filterSubject(subject) {
+            activeSubjectFilter = subject;
+            document.querySelectorAll('.subject-filter-btn').forEach(btn => {
+                btn.classList.remove('bg-slate-900', 'text-white');
+                btn.classList.add('bg-slate-100', 'text-slate-600');
+            });
+            event.target.classList.remove('bg-slate-100', 'text-slate-600');
+            event.target.classList.add('bg-slate-900', 'text-white');
+            renderDetails();
+        }
+
+        function renderDetails() {
+            const container = document.getElementById('detailListContainer');
+            const searchKeyword = (document.getElementById('searchInput').value || '').toLowerCase();
+
+            container.innerHTML = '';
+
+            let filtered = evaluations.filter(ev => {
+                const matchSubject = (activeSubjectFilter === 'ALL' || ev.subject === activeSubjectFilter);
+                const matchSearch = ev.title.toLowerCase().includes(searchKeyword) ||
+                                    ev.description.toLowerCase().includes(searchKeyword) ||
+                                    ev.subject.toLowerCase().includes(searchKeyword);
+                return matchSubject && matchSearch;
+            });
+
+            filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white p-8 text-center rounded-2xl border border-slate-200/80 text-slate-400">
+                        <i class="fa-solid fa-folder-open text-3xl mb-2 text-slate-300"></i>
+                        <p class="text-xs">해당 조건에 부합하는 수행평가 일정이 없습니다.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach(ev => {
+                const style = SUBJECT_COLORS[ev.subject] || SUBJECT_COLORS['기타'];
+                const card = document.createElement('div');
+                card.id = `card-${ev.id}`;
+                card.className = `bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-sm transition-all duration-200 hover:shadow-md`;
+
+                const dDayText = calculateDDay(ev.date);
+
+                let rubricTableHTML = '';
+                if (ev.rubrics && ev.rubrics.length > 0) {
+                    rubricTableHTML = `
+                        <div class="mt-4 border border-slate-200 rounded-xl overflow-hidden text-xs">
+                            <div class="bg-slate-50 px-3 py-2 font-semibold text-slate-700 border-b border-slate-200 flex justify-between items-center">
+                                <span><i class="fa-solid fa-list-check text-blue-500 mr-1"></i> 세부 평가 및 채점 기준표</span>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left divide-y divide-slate-200">
+                                    <thead class="bg-slate-100/70 text-slate-600 font-semibold text-[11px]">
+                                        <tr>
+                                            <th class="p-2.5 min-w-[120px]">평가 요소</th>
+                                            <th class="p-2.5 w-16 text-center">배점</th>
+                                            <th class="p-2.5 min-w-[140px] text-emerald-700 bg-emerald-50/50">성취기준 (상)</th>
+                                            <th class="p-2.5 min-w-[140px] text-blue-700 bg-blue-50/50">성취기준 (중)</th>
+                                            <th class="p-2.5 min-w-[140px] text-amber-700 bg-amber-50/50">성취기준 (하)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100 bg-white">
+                                        ${ev.rubrics.map(r => `
+                                            <tr class="hover:bg-slate-50/50">
+                                                <td class="p-2.5 font-medium text-slate-800">${r.category}</td>
+                                                <td class="p-2.5 text-center font-bold text-blue-600">${r.score}</td>
+                                                <td class="p-2.5 text-slate-600 bg-emerald-50/20">${r.high}</td>
+                                                <td class="p-2.5 text-slate-600 bg-blue-50/20">${r.mid}</td>
+                                                <td class="p-2.5 text-slate-600 bg-amber-50/20">${r.low}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                card.innerHTML = `
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
+                        <div class="flex items-center space-x-2">
+                            <span class="px-2.5 py-1 rounded-lg text-xs font-bold ${style.badge}">
+                                ${ev.subject}
+                            </span>
+                            <h3 class="text-base font-bold text-slate-900">${ev.title}</h3>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs px-2.5 py-1 rounded-full font-semibold ${dDayText.badgeClass}">
+                                ${dDayText.text}
+                            </span>
+                            <button onclick="editEvaluation('${ev.id}')" class="text-slate-400 hover:text-blue-600 text-xs p-1 rounded hover:bg-slate-100 transition-colors" title="수정">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button onclick="deleteEvaluation('${ev.id}')" class="text-slate-400 hover:text-rose-600 text-xs p-1 rounded hover:bg-slate-100 transition-colors" title="삭제">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-600">
+                        <div class="flex items-center space-x-1.5">
+                            <i class="fa-regular fa-calendar text-slate-400"></i>
+                            <span><strong>일시:</strong> ${ev.date} (${getKoreanDayOfWeek(ev.date)})</span>
+                        </div>
+                        <div class="flex items-center space-x-1.5">
+                            <i class="fa-regular fa-clock text-slate-400"></i>
+                            <span><strong>교시:</strong> ${ev.period}</span>
+                        </div>
+                    </div>
+
+                    ${ev.description ? `
+                        <div class="mt-3 text-xs bg-slate-50 p-3 rounded-xl border border-slate-100 text-slate-700 leading-relaxed">
+                            <strong class="font-semibold text-slate-900 block mb-0.5"><i class="fa-solid fa-info-circle text-blue-500 mr-1"></i> 안내 및 주의사항:</strong>
+                            ${ev.description}
+                        </div>
+                    ` : ''}
+
+                    ${rubricTableHTML}
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        function calculateDDay(dateStr) {
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            const target = new Date(dateStr);
+            target.setHours(0,0,0,0);
+
+            const diffTime = target - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays === 0) {
+                return { text: 'D-Day (오늘)', badgeClass: 'bg-rose-600 text-white animate-pulse' };
+            } else if (diffDays > 0) {
+                if (diffDays <= 3) {
+                    return { text: `D-${diffDays}`, badgeClass: 'bg-rose-100 text-rose-700 border border-rose-200' };
+                } else if (diffDays <= 7) {
+                    return { text: `D-${diffDays}`, badgeClass: 'bg-amber-100 text-amber-700 border border-amber-200' };
+                } else {
+                    return { text: `D-${diffDays}`, badgeClass: 'bg-slate-100 text-slate-600' };
+                }
+            } else {
+                return { text: '종료됨', badgeClass: 'bg-slate-100 text-slate-400 line-through' };
+            }
+        }
+
+        function getKoreanDayOfWeek(dateStr) {
+            const days = ['일', '월', '화', '수', '목', '금', '토'];
+            return days[new Date(dateStr).getDay()];
+        }
+
+        function updateUpcomingBadge() {
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            const upcomingCount = evaluations.filter(e => new Date(e.date) >= today).length;
+            const badge = document.getElementById('upcomingBadge');
+            if (badge) badge.textContent = upcomingCount;
+        }
+
+        function renderSummary() {
+            const container = document.getElementById('summaryCardContainer');
+            container.innerHTML = '';
+
+            const today = new Date();
+            today.setHours(0,0,0,0);
+
+            let upcoming = evaluations.filter(e => new Date(e.date) >= today);
+            upcoming.sort((a,b) => new Date(a.date) - new Date(b.date));
+
+            if (upcoming.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full bg-white p-8 text-center rounded-2xl border border-slate-200 text-slate-400 text-xs">
+                        예정된 수행평가 일정이 없습니다.
+                    </div>
+                `;
+                return;
+            }
+
+            upcoming.forEach(ev => {
+                const style = SUBJECT_COLORS[ev.subject] || SUBJECT_COLORS['기타'];
+                const dDayText = calculateDDay(ev.date);
+
+                const card = document.createElement('div');
+                card.className = 'bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between hover:shadow-md transition-all cursor-pointer';
+                card.onclick = () => jumpToDetail(ev.id);
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="px-2 py-0.5 rounded text-xs font-bold ${style.badge}">
+                                ${ev.subject}
+                            </span>
+                            <span class="text-xs px-2 py-0.5 rounded-full font-bold ${dDayText.badgeClass}">
+                                ${dDayText.text}
+                            </span>
+                        </div>
+                        <h4 class="font-bold text-slate-800 text-sm mb-1">${ev.title}</h4>
+                        <p class="text-xs text-slate-500 line-clamp-2">${ev.description || '세부 설명이 없습니다.'}</p>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                        <span><i class="fa-regular fa-calendar mr-1"></i>${ev.date} (${getKoreanDayOfWeek(ev.date)})</span>
+                        <span class="text-blue-600 font-medium">자세히 보기 &rarr;</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+            if (modalId === 'uploadModal' && !document.getElementById('editId').value) {
+                resetForm();
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+            resetForm();
+        }
+
+        function resetForm() {
+            document.getElementById('evaluationForm').reset();
+            document.getElementById('editId').value = '';
+            document.getElementById('modalTitle').textContent = '수행평가 일정 등록';
+            document.getElementById('rubricsContainer').innerHTML = '';
+            addRubricRow();
+        }
+
+        function addRubricRow(data = null) {
+            const container = document.getElementById('rubricsContainer');
+            const rowId = 'rubric-row-' + Date.now() + Math.random().toString(36).substr(2, 4);
+
+            const row = document.createElement('div');
+            row.id = rowId;
+            row.className = 'p-3 bg-slate-50 rounded-xl border border-slate-200/80 space-y-2 relative';
+
+            row.innerHTML = `
+                <button type="button" onclick="removeRubricRow('${rowId}')" class="absolute top-2 right-2 text-slate-400 hover:text-rose-500 text-xs">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="grid grid-cols-3 gap-2">
+                    <div class="col-span-2">
+                        <input type="text" placeholder="평가 요소 (예: 문장 구성력)" value="${data ? data.category : ''}" required class="rubric-category w-full px-2.5 py-1.5 text-xs border border-slate-200 rounded-md focus:ring-1 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <input type="text" placeholder="배점 (예: 10점)" value="${data ? data.score : ''}" required class="rubric-score w-full px-2.5 py-1.5 text-xs border border-slate-200 rounded-md focus:ring-1 focus:ring-blue-500 focus:outline-none">
+                    </div>
+                </div>
+                <div class="grid grid-cols-3 gap-1.5">
+                    <input type="text" placeholder="성취기준 (상)" value="${data ? data.high : ''}" class="rubric-high px-2 py-1 text-[11px] border border-slate-200 rounded bg-white focus:outline-none focus:border-emerald-500">
+                    <input type="text" placeholder="성취기준 (중)" value="${data ? data.mid : ''}" class="rubric-mid px-2 py-1 text-[11px] border border-slate-200 rounded bg-white focus:outline-none focus:border-blue-500">
+                    <input type="text" placeholder="성취기준 (하)" value="${data ? data.low : ''}" class="rubric-low px-2 py-1 text-[11px] border border-slate-200 rounded bg-white focus:outline-none focus:border-amber-500">
+                </div>
+            `;
+
+            container.appendChild(row);
+        }
+
+        function removeRubricRow(rowId) {
+            const row = document.getElementById(rowId);
+            if (row) row.remove();
+        }
+
+        function handleFormSubmit(event) {
+            event.preventDefault();
+
+            const subject = document.getElementById('formSubject').value;
+            const editId = document.getElementById('editId').value;
+            const title = document.getElementById('formTitle').value.trim();
+            const date = document.getElementById('formDate').value;
+            const period = document.getElementById('formPeriod').value.trim();
+            const description = document.getElementById('formDescription').value.trim();
+
+            const rubricRows = document.querySelectorAll('#rubricsContainer > div');
+            const rubrics = [];
+            rubricRows.forEach(r => {
+                const category = r.querySelector('.rubric-category').value.trim();
+                const score = r.querySelector('.rubric-score').value.trim();
+                const high = r.querySelector('.rubric-high').value.trim();
+                const mid = r.querySelector('.rubric-mid').value.trim();
+                const low = r.querySelector('.rubric-low').value.trim();
+
+                if (category && score) {
+                    rubrics.push({ category, score, high, mid, low });
+                }
+            });
+
+            if (editId) {
+                const idx = evaluations.findIndex(e => e.id === editId);
+                if (idx !== -1) {
+                    evaluations[idx] = {
+                        id: editId,
+                        subject,
+                        title,
+                        date,
+                        period,
+                        description,
+                        rubrics
+                    };
+                    showToast('수행평가가 성공적으로 수정되었습니다.');
+                }
+            } else {
+                const newEval = {
+                    id: 'eval-' + Date.now(),
+                    subject,
+                    title,
+                    date,
+                    period,
+                    description,
+                    rubrics
+                };
+                evaluations.push(newEval);
+                showToast('새로운 수행평가가 등록되었습니다.');
+            }
+
+            saveEvaluations();
+            closeModal('uploadModal');
+            renderCalendar();
+            renderDetails();
+            renderSummary();
+        }
+
+        function editEvaluation(id) {
+            const target = evaluations.find(e => e.id === id);
+            if (!target) return;
+
+            document.getElementById('editId').value = target.id;
+            document.getElementById('formSubject').value = target.subject;
+            document.getElementById('formDate').value = target.date;
+            document.getElementById('formPeriod').value = target.period;
+            document.getElementById('formTitle').value = target.title;
+            document.getElementById('formDescription').value = target.description || '';
+
+            document.getElementById('modalTitle').textContent = `[${target.subject}] 수행평가 일정 수정`;
+
+            const rubricsContainer = document.getElementById('rubricsContainer');
+            rubricsContainer.innerHTML = '';
+            if (target.rubrics && target.rubrics.length > 0) {
+                target.rubrics.forEach(r => addRubricRow(r));
+            } else {
+                addRubricRow();
+            }
+
+            openModal('uploadModal');
+        }
+
+        function deleteEvaluation(id) {
+            const target = evaluations.find(e => e.id === id);
+            if (!target) return;
+
+            if (confirm(`[${target.subject}] ${target.title} 항목을 삭제하시겠습니까?`)) {
+                evaluations = evaluations.filter(e => e.id !== id);
+                saveEvaluations();
+                renderCalendar();
+                renderDetails();
+                renderSummary();
+                showToast('수행평가 항목이 삭제되었습니다.');
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const box = document.getElementById('toastBox');
+            const msg = document.getElementById('toastMsg');
+            const icon = document.getElementById('toastIcon');
+
+            msg.textContent = message;
+            if (type === 'error') {
+                icon.className = 'fa-solid fa-circle-exclamation text-rose-400';
+            } else {
+                icon.className = 'fa-solid fa-circle-check text-emerald-400';
+            }
+
+            box.classList.remove('translate-y-20', 'opacity-0');
+            box.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                box.classList.remove('translate-y-0', 'opacity-100');
+                box.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
+```
